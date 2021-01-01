@@ -220,3 +220,41 @@ def get_tfidfmodel_and_weights(texts, use_aozora=True, pos=['名詞']):
     
     return tfidf_model, dic, text_weights
 
+
+
+
+
+# list 4.1
+def jaccard(X, Y):
+    x = set(X)
+    y = set(Y)
+    a = len(x.intersection(y))
+    b = len(x.union(y))
+    if b == 0:
+        return 0
+    else:
+        return a / b
+
+
+#  Listing 4.4 #
+
+from gensim.similarities import MatrixSimilarity
+
+def vsm_search(texts, query):
+    tfidf_model, dic, text_weights = get_tfidfmodel_and_weights(texts)
+
+    index = MatrixSimilarity(text_weights,  num_features=len(dic))
+
+    # queryのbag-of-wordsを作成し，重みを計算
+    query_bows = get_bows([query], dic)
+    query_weights = get_weights(query_bows, dic, tfidf_model)
+
+    # 類似度計算
+    sims = index[query_weights[0]]
+
+    # 類似度で降順にソート
+    return sorted(enumerate(sims), key=lambda x: x[1], reverse=True)
+
+def get_list_from_file(file_name):
+    with open(file_name, 'r', encoding='UTF-8') as f:
+        return f.read().split()
